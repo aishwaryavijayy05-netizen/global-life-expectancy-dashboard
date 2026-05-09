@@ -31,16 +31,17 @@ st.title("🌍 Global Life Expectancy Dashboard")
 
 st.markdown("""
 This dashboard analyzes global trends in:
+
 - Life expectancy
 - Fertility rate
 - Death rate
 - Gender-based life expectancy differences
 
-Data Source: World Bank
+**Data Source:** World Bank
 """)
 
 # =====================================================
-# SIDEBAR FILTERS
+# SIDEBAR
 # =====================================================
 
 st.sidebar.header("🔎 Dashboard Filters")
@@ -50,27 +51,28 @@ selected_country = st.sidebar.selectbox(
     sorted(df["country"].unique())
 )
 
-selected_income = st.sidebar.multiselect(
-    "Select Income Group",
-    options=sorted(df["income_group"].unique()),
-    default=sorted(df["income_group"].unique())
-)
-
-selected_region = st.sidebar.multiselect(
-    "Select Region",
-    options=sorted(df["region"].unique()),
-    default=sorted(df["region"].unique())
-)
-
 # =====================================================
 # FILTER DATA
 # =====================================================
 
 filtered_df = df[
-    (df["country"] == selected_country) &
-    (df["income_group"].isin(selected_income)) &
-    (df["region"].isin(selected_region))
+    df["country"] == selected_country
 ]
+
+# =====================================================
+# COUNTRY INFO
+# =====================================================
+
+region = filtered_df["region"].iloc[0]
+income_group = filtered_df["income_group"].iloc[0]
+
+st.markdown(f"""
+### 📌 Country Overview
+
+- **Country:** {selected_country}
+- **Region:** {region}
+- **Income Group:** {income_group}
+""")
 
 # =====================================================
 # KPI METRICS
@@ -125,10 +127,16 @@ col4.metric(
     "Gender Gap",
     f"{gender_gap:.2f}"
 )
+
+# =====================================================
+# TREND ANALYSIS
+# =====================================================
+
 st.subheader("📈 Trend Analysis")
-# =====================================================
+
+# -----------------------------
 # LIFE EXPECTANCY TREND
-# =====================================================
+# -----------------------------
 
 life_fig = px.line(
     filtered_df,
@@ -137,14 +145,18 @@ life_fig = px.line(
     title="Life Expectancy Over Time"
 )
 
-st.plotly_chart(
-    life_fig,
-    use_container_width=True
+life_fig.update_layout(
+    template="plotly_white"
 )
 
-# =====================================================
+st.plotly_chart(
+    life_fig,
+    width="stretch"
+)
+
+# -----------------------------
 # FERTILITY TREND
-# =====================================================
+# -----------------------------
 
 fertility_fig = px.line(
     filtered_df,
@@ -153,21 +165,28 @@ fertility_fig = px.line(
     title="Fertility Rate Over Time"
 )
 
+fertility_fig.update_layout(
+    template="plotly_white"
+)
+
 st.plotly_chart(
     fertility_fig,
-    use_container_width=True
+    width="stretch"
 )
-st.subheader("👨 Male vs 👩 Female Comparison")
 
-# =====================================================
+# -----------------------------
 # DEATH RATE TREND
-# =====================================================
+# -----------------------------
 
 death_fig = px.line(
     filtered_df,
     x="year",
     y="death_rate",
     title="Death Rate Over Time"
+)
+
+death_fig.update_layout(
+    template="plotly_white"
 )
 
 st.plotly_chart(
@@ -178,6 +197,8 @@ st.plotly_chart(
 # =====================================================
 # GENDER COMPARISON
 # =====================================================
+
+st.subheader("👨 Male vs 👩 Female Comparison")
 
 gender_df = filtered_df.melt(
     id_vars=["year"],
@@ -197,17 +218,24 @@ gender_fig = px.line(
     title="Male vs Female Life Expectancy"
 )
 
+gender_fig.update_layout(
+    template="plotly_white"
+)
+
 st.plotly_chart(
     gender_fig,
-    use_container_width=True
+    width="stretch"
 )
+
 # =====================================================
 # WORLD MAP
 # =====================================================
 
 st.subheader("🌍 Global Life Expectancy Map (2023)")
 
-latest_global = df[df["year"] == 2023]
+latest_global = df[
+    df["year"] == 2023
+]
 
 map_fig = px.choropleth(
     latest_global,
@@ -216,7 +244,7 @@ map_fig = px.choropleth(
     color="life_expectancy_total",
     hover_name="country",
     color_continuous_scale="Viridis",
-    title="Global Life Expectancy"
+    title="Global Life Expectancy (2023)"
 )
 
 map_fig.update_layout(
