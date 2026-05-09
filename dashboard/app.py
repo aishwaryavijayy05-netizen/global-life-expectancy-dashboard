@@ -158,6 +158,23 @@ st.plotly_chart(
     use_container_width=True
 )
 st.subheader("👨 Male vs 👩 Female Comparison")
+
+# =====================================================
+# DEATH RATE TREND
+# =====================================================
+
+death_fig = px.line(
+    filtered_df,
+    x="year",
+    y="death_rate",
+    title="Death Rate Over Time"
+)
+
+st.plotly_chart(
+    death_fig,
+    width="stretch"
+)
+
 # =====================================================
 # GENDER COMPARISON
 # =====================================================
